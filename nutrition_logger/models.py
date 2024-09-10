@@ -24,16 +24,7 @@ class Log(Base):
     foods:Mapped[List["Food"]] = relationship(back_populates="log", cascade="all, delete-orphan")
     
 class Food(Base):
-    __tablename__ = 'foods'
-
-    id:Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    user_id:Mapped[int] = mapped_column(ForeignKey('logs.user_id'), primary_key=True)
-    log_date:Mapped[datetime.date] = mapped_column(ForeignKey('logs.date'), primary_key=True)
-    food_db_id:Mapped[int] = mapped_column(ForeignKey('food_database.id'), nullable=False)
-    quantity:Mapped[float] = mapped_column(nullable = False)
-
-    log:Mapped[Log] = relationship(back_populates="foods")
-    food_db:Mapped["FoodDatabase"] = relationship()
+    pass
 
 class FoodDatabase(Base):
     __tablename__ = 'food_database'
