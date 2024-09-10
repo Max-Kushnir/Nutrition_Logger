@@ -2,7 +2,7 @@ import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.exc import SQLAlchemyError
 from dotenv import load_dotenv
-from src.models import Base, User, Log, Food, FoodDatabase
+from nutrition_logger.models import Base, User, Log, Food, FoodDatabase
 import os
 
 load_dotenv()
