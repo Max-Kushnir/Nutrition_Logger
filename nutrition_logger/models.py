@@ -1,41 +1,58 @@
-import datetime
-from typing import List, Optional
-from sqlalchemy.orm import declarative_base, Mapped, mapped_column, relationship
-from sqlalchemy import ForeignKey, Date
+from typing import List
+from datetime import date
 
+from sqlalchemy import ForeignKey, UniqueConstraint, Date
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
-Base = declarative_base()
+class Base(DeclarativeBase):
+    pass
 
+#table of users
 class User(Base):
     __tablename__ = 'users'
 
-    id:Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    username:Mapped[str] = mapped_column(unique=True, nullable=False)
+    id: Mapped[int] = mapped_column(primary_key=True)
+    username: Mapped[str] = mapped_column(unique=True, nullable=False)
+    email: Mapped[str] = mapped_column(unique=True, nullable=False)
 
-    logs: Mapped[List["Log"]] = relationship(back_populates="user", cascade="all, delete-orphan")
+    logs: Mapped[List["DailyLog"]] = relationship(back_populates="user", cascade="all, delete-orphan")
 
-class Log(Base):
-    __tablename__ = 'logs'
-
-    user_id:Mapped[int] = mapped_column(ForeignKey('users.id'), primary_key=True)
-    date:Mapped[datetime.date] = mapped_column(Date, primary_key=True) 
-
-    user:Mapped[User] = relationship(back_populates="logs")
-    foods:Mapped[List["Food"]] = relationship(back_populates="log", cascade="all, delete-orphan")
-    
+#database for food
 class Food(Base):
-    pass
+    __tablename__ = 'foods'
 
-class FoodDatabase(Base):
-    __tablename__ = 'food_database'
-    
-    id:Mapped[int] = mapped_column(primary_key=True)
-    name:Mapped[str] = mapped_column(nullable=False)
-    manufacturer: Mapped[Optional[str]] = mapped_column(nullable=True)
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(unique=True, nullable=False)
+    manufacturer: Mapped[str] = mapped_column(unique=True, nullable=False)
+    serving_size: Mapped[float] = mapped_column(nullable=False)
+    unit: Mapped[str] = mapped_column(nullable=False)
     calories: Mapped[float] = mapped_column(nullable=False)
-    protein: Mapped[float] = mapped_column(nullable=True)
-    carbs: Mapped[float] = mapped_column(nullable=True)
-    fat: Mapped[float] = mapped_column(nullable=True)
+    protein: Mapped[float] = mapped_column(nullable=False)
+    carbs: Mapped[float] = mapped_column(nullable=False)
+    fat: Mapped[float] = mapped_column(nullable=False)
 
-    foods: Mapped[List[Food]] = relationship(back_populates="food_db")
+#table of logs, user can only have one log per date
+class DailyLog(Base):
+    __tablename__ = 'daily_logs'
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    date: Mapped[date] = mapped_column(Date, nullable=False, default=date.today)
+    user_id: Mapped[int] = mapped_column(ForeignKey('users.id'), nullable=False)
+
+    user: Mapped["User"] = relationship(back_populates="logs")
+    food_entries: Mapped[List["FoodEntry"]] = relationship(back_populates="daily_log", cascade="all, delete-orphan")
+
+    __table_args__ = (UniqueConstraint('user_id', 'date', name='_user_date_uc'),)
+
+#table of food entries associated with individual logs
+class FoodEntry(Base):
+    __tablename__ = 'food_entries'
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    daily_log_id: Mapped[int] = mapped_column(ForeignKey('daily_logs.id'), nullable=False)
+    food_id: Mapped[int] = mapped_column(ForeignKey('foods.id'), nullable=False)
+    quantity: Mapped[float] = mapped_column(nullable=False, default=1.0)
+
+    daily_log: Mapped["DailyLog"] = relationship(back_populates="food_entries")
+    food: Mapped["Food"] = relationship()
 
