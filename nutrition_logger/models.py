@@ -1,5 +1,5 @@
 from typing import List
-from datetime import date
+import datetime
 
 from sqlalchemy import ForeignKey, UniqueConstraint, Date
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
@@ -36,7 +36,7 @@ class DailyLog(Base):
     __tablename__ = 'daily_logs'
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    date: Mapped[date] = mapped_column(Date, nullable=False, default=date.today)
+    date: Mapped[datetime.date] = mapped_column(Date, nullable=False, default=datetime.date.today)
     user_id: Mapped[int] = mapped_column(ForeignKey('users.id'), nullable=False)
 
     user: Mapped["User"] = relationship(back_populates="logs")
