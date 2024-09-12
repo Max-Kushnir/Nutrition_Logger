@@ -15,6 +15,9 @@ class UserResponse(UserBase):
     id: int
     logs: List["DailyLogResponse"] = []
 
+    class config:
+        from_attributes: True
+
 class UserUpdate(BaseModel):
     username: str
     email: EmailStr
@@ -35,6 +38,9 @@ class FoodCreate(FoodBase):
 
 class FoodResponse(FoodBase):
     id: int
+    
+    class config:
+        from_attributes: True
 
 class FoodUpdate(BaseModel):
     name: Optional[str]
@@ -59,6 +65,10 @@ class DailyLogResponse(DailyLogBase):
     user: "UserResponse"
     food_Entries: List["FoodEntryResponse"] = []
 
+    class config:
+        from_attributes: True
+
+
 #FoodEntry classes
 class FoodEntryBase(BaseModel):
     daily_log_id: int
@@ -72,6 +82,10 @@ class FoodEntryResponse(FoodEntryBase):
     id: int
     daily_log: "DailyLogResponse"
     food: "FoodResponse"
+
+    class config:
+        from_attributes: True
+
 
 class FoodEntryUpdate(BaseModel):
     quantity: Optional[int]

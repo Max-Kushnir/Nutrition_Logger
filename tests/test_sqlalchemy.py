@@ -1,7 +1,7 @@
 import pytest
 from dotenv import load_dotenv
 import os
-
+import datetime
 from sqlalchemy import create_engine, inspect
 from sqlalchemy.orm import sessionmaker
 
@@ -117,6 +117,118 @@ def test_add_food_entry(db_session):
     assert added_food_entry.quantity == 1.0
     assert added_food_entry.food.name == "Banana"
     assert added_food_entry.daily_log.user.username == "testuser"
+
+def test_update_user(db_session):
+    # Fetch an existing user
+    user = db_session.query(User).filter_by(username="testuser").first()
+    assert user is not None, "Setup data 'testuser' not found"
+
+    # Update the user
+    original_email = user.email
+    user.email = "updated_testuser@example.com"
+    db_session.commit()
+    db_session.refresh(user)
+
+    # Query the updated user
+    updated_user = db_session.query(User).filter_by(username="testuser").first()
+
+    assert updated_user is not None
+    assert updated_user.email == "updated_testuser@example.com"
+    assert updated_user.email != original_email
+
+    # Revert the change for other tests
+    user.email = original_email
+    db_session.commit()
+
+def test_update_food(db_session):
+    # Fetch an existing food item
+    food = db_session.query(Food).filter_by(name="Banana").first()
+    assert food is not None, "Setup data 'Banana' not found"
+
+    # Store original values
+    original_manufacturer = food.manufacturer
+    original_calories = food.calories
+
+    # Update the food item
+    food.manufacturer = "Updated Manufacturer"
+    food.calories = 110
+    db_session.commit()
+    db_session.refresh(food)
+
+    # Query the updated food
+    updated_food = db_session.query(Food).filter_by(name="Banana").first()
+
+    assert updated_food is not None
+    assert updated_food.manufacturer == "Updated Manufacturer"
+    assert updated_food.calories == 110
+    assert updated_food.manufacturer != original_manufacturer
+    assert updated_food.calories != original_calories
+
+    # Revert the changes for other tests
+    food.manufacturer = original_manufacturer
+    food.calories = original_calories
+    db_session.commit()
+
+def test_update_daily_log(db_session):
+    # Fetch an existing user and their log
+    user = db_session.query(User).filter_by(username="testuser").first()
+    assert user is not None, "Setup data 'testuser' not found"
+
+    log = db_session.query(DailyLog).filter_by(user_id=user.id).first()
+    assert log is not None, "Setup data DailyLog not found"
+
+    # Store original date
+    original_date = log.date
+
+    # Update the daily log
+    new_date = original_date + datetime.timedelta(days=1)
+    log.date = new_date
+    db_session.commit()
+    db_session.refresh(log)
+
+    # Query the updated log
+    updated_log = db_session.query(DailyLog).filter_by(user_id=user.id, date=new_date).first()
+
+    assert updated_log is not None
+    assert updated_log.date == new_date
+    assert updated_log.date != original_date
+
+    # Revert the change for other tests
+    log.date = original_date
+    db_session.commit()
+
+def test_update_food_entry(db_session):
+    # Fetch existing user, log, food, and food entry
+    user = db_session.query(User).filter_by(username="testuser").first()
+    assert user is not None, "Setup data 'testuser' not found"
+
+    log = db_session.query(DailyLog).filter_by(user_id=user.id).first()
+    assert log is not None, "Setup data DailyLog not found"
+
+    food = db_session.query(Food).filter_by(name="Banana").first()
+    assert food is not None, "Setup data 'Banana' not found"
+
+    food_entry = db_session.query(FoodEntry).filter_by(daily_log_id=log.id, food_id=food.id).first()
+    assert food_entry is not None, "Setup data FoodEntry not found"
+
+    # Store original quantity
+    original_quantity = food_entry.quantity
+
+    # Update the food entry
+    food_entry.quantity = original_quantity + 1.0
+    db_session.commit()
+    db_session.refresh(food_entry)
+
+    # Query the updated food entry
+    updated_food_entry = db_session.query(FoodEntry).filter_by(daily_log_id=log.id, food_id=food.id).first()
+
+    assert updated_food_entry is not None
+    assert updated_food_entry.quantity == original_quantity + 1.0
+    assert updated_food_entry.quantity != original_quantity
+
+    # Revert the change for other tests
+    food_entry.quantity = original_quantity
+    db_session.commit()
 
 #children of user and list should be deleted if their parent is removed from database
 def test_cascade_delete(db_session): 
