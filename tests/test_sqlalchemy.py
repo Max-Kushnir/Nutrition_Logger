@@ -1,7 +1,5 @@
-import pytest
+import pytest, os, datetime
 from dotenv import load_dotenv
-import os
-import datetime
 from sqlalchemy import create_engine, inspect
 from sqlalchemy.orm import sessionmaker, Session
 
@@ -33,7 +31,7 @@ def tables(engine):
     yield
     Base.metadata.drop_all(engine)
 
-#create session
+# create session
 @pytest.fixture(scope="function")
 def db_session(engine, tables):
     connection = engine.connect()
@@ -45,7 +43,7 @@ def db_session(engine, tables):
     transaction.rollback()
     connection.close()
 
-# smoke tests
+# smoke tests to assert that sqlalchemy and database is properly set up
 def test_database_connection(engine):
     with engine.connect() as conn:
         assert conn is not None
@@ -61,13 +59,12 @@ def test_session_exists(db_session):
     assert isinstance(db_session, Session)
     assert db_session.bind is not None
 
-# integration tests
+# integration tests with database
 def test_add_user(db_session):
     user = User(username="testuser", email="testuser@example.com")
     db_session.add(user)
     db_session.commit()
     db_session.refresh(user)
-    db_session.close()
 
     added_user = db_session.query(User).filter_by(username="testuser").first()
 
@@ -90,7 +87,6 @@ def test_add_food(db_session):
     db_session.add(food)
     db_session.commit()
     db_session.refresh(food)
-    db_session.close()
 
     added_food = db_session.query(Food).filter_by(name="Banana").first()
 
@@ -114,7 +110,6 @@ def test_add_log(db_session):
     db_session.add(log)
     db_session.commit()
     db_session.refresh(log)
-    db_session.close
 
     added_log = db_session.query(DailyLog).filter_by(user_id=1).first()
 
@@ -149,7 +144,6 @@ def test_add_food_entry(db_session):
     db_session.add(food_entry)
     db_session.commit()
     db_session.refresh(food_entry)
-    db_session.close()
 
     added_food_entry = db_session.query(FoodEntry).filter_by(daily_log_id=1).first()
 
@@ -215,7 +209,6 @@ def test_update_daily_log(db_session):
     db_session.add(log)
     db_session.commit()
     db_session.refresh(log)
-    db_session.close
 
     user = db_session.query(User).filter_by(username="testuser").first()
     assert user is not None
@@ -263,7 +256,6 @@ def test_update_food_entry(db_session):
     db_session.add(food_entry)
     db_session.commit()
     db_session.refresh(food_entry)
-    db_session.close()
 
     user = db_session.query(User).filter_by(username="testuser").first()
     assert user is not None
@@ -317,13 +309,11 @@ def test_cascade_delete(db_session):
     db_session.add(food_entry)
     db_session.commit()
     db_session.refresh(food_entry)
-    db_session.close()
 
     added_user = db_session.query(User).filter_by(username="testuser").first()
     db_session.delete(added_user)
     db_session.commit()
-    db_session.close()
-
+    
     added_user = db_session.query(User).filter_by(username="testuser").first()
     added_log = db_session.query(DailyLog).filter_by(user_id=1).first()
     added_food_entry = db_session.query(FoodEntry).filter_by(daily_log_id=1).first()
