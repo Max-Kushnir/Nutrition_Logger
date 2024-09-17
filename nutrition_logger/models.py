@@ -1,3 +1,4 @@
+from __future__ import annotations
 from typing import List
 import datetime
 
@@ -15,7 +16,7 @@ class User(Base):
     username: Mapped[str] = mapped_column(unique=True, nullable=False)
     email: Mapped[str] = mapped_column(unique=True, nullable=False)
 
-    logs: Mapped[List["DailyLog"]] = relationship(back_populates="user", cascade="all, delete-orphan")
+    logs: Mapped[List[DailyLog]] = relationship(back_populates="user", cascade="all, delete-orphan")
 
 #database for food
 class Food(Base):
@@ -39,8 +40,8 @@ class DailyLog(Base):
     date: Mapped[datetime.date] = mapped_column(Date, nullable=False, default=datetime.date.today)
     user_id: Mapped[int] = mapped_column(ForeignKey('users.id'), nullable=False)
 
-    user: Mapped["User"] = relationship(back_populates="logs")
-    food_entries: Mapped[List["FoodEntry"]] = relationship(back_populates="daily_log", cascade="all, delete-orphan")
+    user: Mapped[User] = relationship(back_populates="logs")
+    food_entries: Mapped[List[FoodEntry]] = relationship(back_populates="daily_log", cascade="all, delete-orphan")
 
     __table_args__ = (UniqueConstraint('user_id', 'date', name='_user_date_uc'),)
 
@@ -53,6 +54,6 @@ class FoodEntry(Base):
     food_id: Mapped[int] = mapped_column(ForeignKey('foods.id'), nullable=False)
     quantity: Mapped[float] = mapped_column(nullable=False, default=1.0)
 
-    daily_log: Mapped["DailyLog"] = relationship(back_populates="food_entries")
-    food: Mapped["Food"] = relationship()
+    daily_log: Mapped[DailyLog] = relationship(back_populates="food_entries")
+    food: Mapped[Food] = relationship()
 
