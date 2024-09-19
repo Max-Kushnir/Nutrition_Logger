@@ -1,16 +1,15 @@
 import pytest, json, os
 from dotenv import load_dotenv
 from sqlalchemy import create_engine, inspect
-from sqlalchemy.orm import sessionmaker, Session
+from sqlalchemy.orm import sessionmaker
 from pydantic import ValidationError
-from nutrition_logger.models import Base, User
-from nutrition_logger.schema import (
-    UserCreate, UserResponse, UserUpdate, 
-    FoodCreate, FoodResponse, FoodUpdate, 
-    DailyLogCreate, DailyLogResponse, 
-    FoodEntryCreate, FoodEntryResponse, FoodEntryUpdate
-)
-
+from nutrition_logger.database.db import Base
+from nutrition_logger.models import User
+from nutrition_logger.schema.daily_log import DailyLogCreate
+from nutrition_logger.schema.user import UserCreate, UserResponse
+from nutrition_logger.schema.food import FoodCreate
+from nutrition_logger.schema.food_entry import FoodEntryCreate
+UserResponse.model_rebuild()
 
 # testing validation
 

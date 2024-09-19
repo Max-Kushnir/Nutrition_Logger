@@ -1,29 +1,23 @@
+import json, uvicorn
 from dotenv import load_dotenv
-import os
-
+from fastapi import FastAPI
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from models import Base, User, DailyLog, Food, FoodEntry
+from nutrition_logger.database.db import get_db
+from nutrition_logger.models.models import User, DailyLog, Food, FoodEntry
+from nutrition_logger.schema.schema import (
+    UserCreate, UserResponse, UserUpdate, 
+    FoodCreate, FoodResponse, FoodUpdate, 
+    DailyLogCreate, DailyLogResponse, 
+    FoodEntryCreate, FoodEntryResponse, FoodEntryUpdate
+)
 
-load_dotenv()
+app = FastAPI()
 
-user = os.environ.get("POSTGRES_USER")
-password = os.environ.get("POSTGRES_PW")
-db = os.environ.get("POSTGRES_DB")
-host = os.environ.get("POSTGRES_HOST", "localhost") #postgres running from docker image
-port = os.environ.get("POSTGRES_PORT", 5432)
+@app.get("/")
+async def root():
+    return {"message": "Hello World"}
 
-url = f"postgresql://{user}:{password}@{host}:{port}/{db}"
-
-engine = create_engine(url)
-
-#create all tables
-Base.metadata.create_all(engine)
-
-Session = sessionmaker(bind=engine)
-
-#create a session
-session = Session()
-
-
+if __name__ == "__main__":
+    uvicorn.run("nutrition_logger.main:app", port=5000, log_level="info")
