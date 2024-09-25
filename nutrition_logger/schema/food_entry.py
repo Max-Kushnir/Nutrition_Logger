@@ -1,5 +1,10 @@
+from __future__ import annotations
 from pydantic import BaseModel, Field, ConfigDict
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .daily_log import DailyLogResponse
+    from .food import FoodResponse
 
 class FoodEntryBase(BaseModel):
     daily_log_id: int = Field(gt=0)
@@ -12,7 +17,7 @@ class FoodEntryCreate(FoodEntryBase):
 class FoodEntryResponse(FoodEntryBase):
     id: int = Field(gt=0)
     daily_log: DailyLogResponse
-    food: FoodResponse 
+    food: FoodResponse
 
     model_config = ConfigDict(from_attributes=True)
 

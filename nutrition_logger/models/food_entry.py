@@ -1,7 +1,13 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from nutrition_logger.database.db import Base
+
+if TYPE_CHECKING:
+    from .daily_log import DailyLog
+    from .food import Food
 
 class FoodEntry(Base):
     __tablename__ = 'food_entries'

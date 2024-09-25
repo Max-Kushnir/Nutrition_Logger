@@ -5,10 +5,10 @@ from sqlalchemy.orm import sessionmaker
 from pydantic import ValidationError
 from nutrition_logger.database.db import Base
 from nutrition_logger.models import User
-from nutrition_logger.schema.daily_log import DailyLogCreate
+from nutrition_logger.schema.daily_log import DailyLogCreate, DailyLogResponse
 from nutrition_logger.schema.user import UserCreate, UserResponse
-from nutrition_logger.schema.food import FoodCreate
-from nutrition_logger.schema.food_entry import FoodEntryCreate
+from nutrition_logger.schema.food import FoodCreate, FoodResponse
+from nutrition_logger.schema.food_entry import FoodEntryCreate, FoodEntryResponse
 UserResponse.model_rebuild()
 
 # testing validation
