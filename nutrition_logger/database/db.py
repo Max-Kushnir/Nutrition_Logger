@@ -24,10 +24,7 @@ model_tables = set(Base.metadata.tables.keys())
 
 
 def create_tables():
-    if not inspector.has_table('users'):
-        Base.metadata.create_all(engine)
-    else:
-        Base.metadata.create_all(engine)
+    Base.metadata.create_all(engine)
 
 def get_db():
     db = Session()
@@ -35,3 +32,5 @@ def get_db():
         yield db
     finally:
         db.close()
+
+    

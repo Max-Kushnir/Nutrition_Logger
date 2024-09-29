@@ -1,18 +1,16 @@
 import json, uvicorn
-from dotenv import load_dotenv
 from fastapi import FastAPI
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 
 from nutrition_logger.database.db import get_db
-from nutrition_logger.models.models import User, DailyLog, Food, FoodEntry
-from nutrition_logger.schema.schema import (
-    UserCreate, UserResponse, UserUpdate, 
+from nutrition_logger.models import User, DailyLog, Food, FoodEntry
+from nutrition_logger.schema import (
+    UserCreate, UserResponse, UserUpdate,
     FoodCreate, FoodResponse, FoodUpdate, 
     DailyLogCreate, DailyLogResponse, 
     FoodEntryCreate, FoodEntryResponse, FoodEntryUpdate
 )
 
+db = get_db()
 app = FastAPI()
 
 @app.get("/")
