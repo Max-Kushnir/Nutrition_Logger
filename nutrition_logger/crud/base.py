@@ -1,5 +1,3 @@
-from typing import List, Optional, Type, TypeVar
-from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 class CRUD:
